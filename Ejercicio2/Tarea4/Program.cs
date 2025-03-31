@@ -3,7 +3,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Tarea3
+namespace Tarea4
 {
     public enum Estado
     {
@@ -22,8 +22,9 @@ namespace Tarea3
         public Estado Estado { get; set; }
         public bool RequiereDiagnostico { get; set; }
         public int OrdenLlegada { get; set; }
+        public int Prioridad { get; set; } //prioridad
 
-        public Paciente(int id, int llegadaHospital, int tiempoConsulta, bool requiereDiagnostico, int ordenLlegada)
+        public Paciente(int id, int llegadaHospital, int tiempoConsulta, bool requiereDiagnostico, int ordenLlegada, int prioridad)
         {
             Id = id;
             LlegadaHospital = llegadaHospital;
@@ -31,13 +32,14 @@ namespace Tarea3
             RequiereDiagnostico = requiereDiagnostico;
             Estado = Estado.EsperaConsulta;
             OrdenLlegada = ordenLlegada;
+            Prioridad = prioridad;
         }
     }
 
     class Program
     {
-        static bool[] medicosDisponibles = new bool[4]; //4 medicos
-        static SemaphoreSlim maquinasDiagnostico = new SemaphoreSlim(2); // 2 maquinas
+        static bool[] medicosDisponibles = new bool[4]; // 4 médicos
+        static SemaphoreSlim maquinasDiagnostico = new SemaphoreSlim(2); // 2 máquinas
         static object lockObj = new object();
         static int turnoDiagnostico = 1;
         static Random random = new Random();
@@ -63,12 +65,13 @@ namespace Tarea3
                 int tiempoConsulta = random.Next(5, 16) * 1000;
                 bool requiereDiagnostico = random.Next(0, 2) == 1;
                 int ordenLlegada = numeroLlegada++;
+                int prioridad = random.Next(1, 4); // Prioridad aleatoria entre 1 y 3
 
-                Paciente paciente = new Paciente(id, llegadaHospital, tiempoConsulta, requiereDiagnostico, ordenLlegada);
+                Paciente paciente = new Paciente(id, llegadaHospital, tiempoConsulta, requiereDiagnostico, ordenLlegada, prioridad);
                 pacientes.Add(paciente);
 
                 DateTime horaLlegada = DateTime.Now;
-                Console.WriteLine($"Paciente {paciente.Id}. Llegado el {ordenLlegada}. Estado: EsperaConsulta.");
+                Console.WriteLine($"Paciente {paciente.Id}. Llegado el {ordenLlegada}. Prioridad: {paciente.Prioridad}. Estado: EsperaConsulta.");
 
                 Task tareaPaciente = Task.Run(() => AtenderPaciente(paciente, horaLlegada));
                 tareasPacientes.Add(tareaPaciente);
@@ -86,18 +89,35 @@ namespace Tarea3
             DateTime horaInicioConsulta;
             int threadId = Thread.CurrentThread.ManagedThreadId;
 
-            // Esperar hasta que haya medico
+            // Esperar hasta que haya médico disponible y sea el turno según la prioridad
             while (true)
             {
                 lock (lockObj)
                 {
-                    for (int i = 0; i < medicosDisponibles.Length; i++)
+                    // Ordenar la lista de pacientes por prioridad y luego por orden de llegada
+                    pacientes.Sort((p1, p2) =>
                     {
-                        if (medicosDisponibles[i])
+                        if (p1.Prioridad != p2.Prioridad)
+                            return p1.Prioridad.CompareTo(p2.Prioridad);
+                        return p1.OrdenLlegada.CompareTo(p2.OrdenLlegada);
+                    });
+
+                    // Buscar el paciente con la prioridad más alta y que esté en espera
+                    for (int i = 0; i < pacientes.Count; i++)
+                    {
+                        if (pacientes[i].Id == paciente.Id && pacientes[i].Estado == Estado.EsperaConsulta)
                         {
-                            medicoAsignado = i;
-                            medicosDisponibles[i] = false;
-                            paciente.Estado = Estado.Consulta;
+                            // Verificar si hay médicos disponibles
+                            for (int j = 0; j < medicosDisponibles.Length; j++)
+                            {
+                                if (medicosDisponibles[j])
+                                {
+                                    medicoAsignado = j;
+                                    medicosDisponibles[j] = false;
+                                    pacientes[i].Estado = Estado.Consulta;
+                                    break;
+                                }
+                            }
                             break;
                         }
                     }
@@ -112,7 +132,7 @@ namespace Tarea3
             horaInicioConsulta = DateTime.Now;
             TimeSpan duracionEspera = horaInicioConsulta - horaLlegada;
 
-            Console.WriteLine($"[Hilo {threadId}] Paciente {paciente.Id}. Llegado el {paciente.OrdenLlegada}. Estado: Consulta. Duración Espera: {duracionEspera.Seconds} segundos. Médico: {medicoAsignado + 1}");
+            Console.WriteLine($"[Hilo {threadId}] Paciente {paciente.Id}. Llegado el {paciente.OrdenLlegada}. Prioridad: {paciente.Prioridad}. Estado: Consulta. Duración Espera: {duracionEspera.Seconds} segundos. Médico: {medicoAsignado + 1}");
 
             Thread.Sleep(paciente.TiempoConsulta);
 
@@ -121,8 +141,7 @@ namespace Tarea3
                 medicosDisponibles[medicoAsignado] = true;
             }
 
-            // Diagnóstico si hace falta diagnostico
-            if (paciente.RequiereDiagnostico)
+           if (paciente.RequiereDiagnostico)
             {
                 paciente.Estado = Estado.EsperaDiagnostico;
                 Console.WriteLine($"Paciente {paciente.Id}. Llegado el {paciente.OrdenLlegada}. Estado: EsperaDiagnostico. Requiere pruebas.");
@@ -168,10 +187,9 @@ namespace Tarea3
                     Thread.Sleep(200);
                 }
             }
-
             paciente.Estado = Estado.Finalizado;
             TimeSpan duracionConsulta = TimeSpan.FromMilliseconds(paciente.TiempoConsulta);
-            Console.WriteLine($"[Hilo {threadId}] Paciente {paciente.Id}. Llegado el {paciente.OrdenLlegada}. Estado: Finalizado. Duración Consulta: {duracionConsulta.Seconds} segundos.");
+            Console.WriteLine($"[Hilo {threadId}] Paciente {paciente.Id}. Llegado el {paciente.OrdenLlegada}. Prioridad: {paciente.Prioridad}. Estado: Finalizado. Duración Consulta: {duracionConsulta.Seconds} segundos.");
         }
     }
 }

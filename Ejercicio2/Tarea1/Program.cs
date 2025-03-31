@@ -3,7 +3,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Tarea4
+namespace Tarea1
 {
     public enum Estado
     {
