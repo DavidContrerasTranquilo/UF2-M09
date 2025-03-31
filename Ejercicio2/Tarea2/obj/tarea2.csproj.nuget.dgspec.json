@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\Ejercicio1\\Tarea1\\ejercicio1.csproj": {}
+    "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\ejercicio2\\tarea2\\tarea2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\Ejercicio1\\Tarea1\\ejercicio1.csproj": {
+    "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\ejercicio2\\tarea2\\tarea2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\Ejercicio1\\Tarea1\\ejercicio1.csproj",
-        "projectName": "ejercicio1",
-        "projectPath": "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\Ejercicio1\\Tarea1\\ejercicio1.csproj",
+        "projectUniqueName": "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\ejercicio2\\tarea2\\tarea2.csproj",
+        "projectName": "tarea2",
+        "projectPath": "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\ejercicio2\\tarea2\\tarea2.csproj",
         "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\Ejercicio1\\Tarea1\\obj\\",
+        "outputPath": "C:\\Users\\david\\Documents\\Clases\\Lasalle\\UF2-M09\\ejercicio2\\tarea2\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\david\\AppData\\Roaming\\NuGet\\NuGet.Config"

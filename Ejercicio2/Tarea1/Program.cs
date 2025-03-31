@@ -3,26 +3,38 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Tarea3
+namespace Tarea4
 {
+    public enum Estado
+    {
+        EsperaConsulta,
+        Consulta,
+        EsperaDiagnostico,
+        Finalizado
+    }
+
     public class Paciente
     {
         public int Id { get; set; }
         public int LlegadaHospital { get; set; }
         public int TiempoConsulta { get; set; }
-        public int Estado { get; set; }
+        public Estado Estado { get; set; }
+        public bool RequiereDiagnostico { get; set; }
 
-        public Paciente(int Id, int LlegadaHospital, int TiempoConsulta)
+        public Paciente(int id, int llegadaHospital, int tiempoConsulta, bool requiereDiagnostico)
         {
-            this.Id = Id;
-            this.LlegadaHospital = LlegadaHospital;
-            this.TiempoConsulta = TiempoConsulta;
+            Id = id;
+            LlegadaHospital = llegadaHospital;
+            TiempoConsulta = tiempoConsulta;
+            RequiereDiagnostico = requiereDiagnostico;
+            Estado = Estado.EsperaConsulta;
         }
     }
 
     class Program
     {
-        static bool[] medicosDisponibles = new bool[4]; // 10 médicos a modificar como uno quiera
+        static bool[] medicosDisponibles = new bool[10];
+        static SemaphoreSlim maquinasDiagnostico = new SemaphoreSlim(2); // 2 maquinas
         static object lockObj = new object();
         static Random random = new Random();
         static List<Paciente> pacientes = new List<Paciente>();
@@ -31,29 +43,26 @@ namespace Tarea3
         static Program()
         {
             for (int i = 0; i < medicosDisponibles.Length; i++)
-            {
                 medicosDisponibles[i] = true;
-            }
         }
 
         static async Task Main(string[] args)
         {
             List<Task> tareasPacientes = new List<Task>();
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 6; i++) //numero de pacientes
             {
                 int id = random.Next(1, 101);
                 int llegadaHospital = i * 2;
-                //Tiempo de consulta calculado de 5 a 1 5
                 int tiempoConsulta = random.Next(5, 16) * 1000;
+                bool requiereDiagnostico = random.Next(0, 2) == 1; // 50% de requerir diagnositocp
                 int ordenLlegada = numeroLlegada++;
 
-                Paciente paciente = new Paciente(id, llegadaHospital, tiempoConsulta);
+                Paciente paciente = new Paciente(id, llegadaHospital, tiempoConsulta, requiereDiagnostico);
                 pacientes.Add(paciente);
-                //Empezar a contar
 
                 DateTime horaLlegada = DateTime.Now;
-                Console.WriteLine($"Paciente {paciente.Id}. Llegado el {ordenLlegada}. Estado: Espera.");
+                Console.WriteLine($"Paciente {paciente.Id}. Llegado el {ordenLlegada}. Estado: EsperaConsulta.");
 
                 int orden = ordenLlegada;
                 Task tareaPaciente = Task.Run(() => AtenderPaciente(paciente, orden, horaLlegada));
@@ -65,13 +74,14 @@ namespace Tarea3
             await Task.WhenAll(tareasPacientes);
             Console.WriteLine("Simulación completada.");
         }
-        //metodo para anteder pacientes
+
         static void AtenderPaciente(Paciente paciente, int ordenLlegada, DateTime horaLlegada)
         {
             int medicoAsignado = -1;
             DateTime horaInicioConsulta;
             int threadId = Thread.CurrentThread.ManagedThreadId;
 
+            // espera de medico
             while (true)
             {
                 lock (lockObj)
@@ -88,7 +98,7 @@ namespace Tarea3
                         int index = random.Next(disponibles.Count);
                         medicoAsignado = disponibles[index];
                         medicosDisponibles[medicoAsignado] = false;
-                        paciente.Estado = 1;
+                        paciente.Estado = Estado.Consulta;
                         break;
                     }
                 }
@@ -98,19 +108,30 @@ namespace Tarea3
 
             horaInicioConsulta = DateTime.Now;
             TimeSpan duracionEspera = horaInicioConsulta - horaLlegada;
-
             Console.WriteLine($"[Hilo {threadId}] Paciente {paciente.Id}. Llegado el {ordenLlegada}. Estado: Consulta. Duración Espera: {duracionEspera.Seconds} segundos. Médico: {medicoAsignado + 1}");
 
             Thread.Sleep(paciente.TiempoConsulta);
-            paciente.Estado = 2;
-            //la duracion en
-            TimeSpan duracionConsulta = TimeSpan.FromMilliseconds(paciente.TiempoConsulta);
-            Console.WriteLine($"[Hilo {threadId}] Paciente {paciente.Id}. Llegado el {ordenLlegada}. Estado: Finalizado. Duración Consulta: {duracionConsulta.Seconds} segundos. Médico: {medicoAsignado + 1}");
 
             lock (lockObj)
             {
                 medicosDisponibles[medicoAsignado] = true;
             }
+
+            if (paciente.RequiereDiagnostico)
+            {
+                paciente.Estado = Estado.EsperaDiagnostico;
+                Console.WriteLine($"Paciente {paciente.Id}. Llegado el {ordenLlegada}. Estado: EsperaDiagnostico. Requiere pruebas.");
+
+                maquinasDiagnostico.Wait(); // Espera turno
+                Console.WriteLine($"Paciente {paciente.Id} entra en máquina de diagnóstico.");
+                Thread.Sleep(15000); // Ssimulacion diagnositoc
+                Console.WriteLine($"Paciente {paciente.Id} finaliza el diagnóstico.");
+                maquinasDiagnostico.Release();
+            }
+
+            paciente.Estado = Estado.Finalizado;
+            TimeSpan duracionConsulta = TimeSpan.FromMilliseconds(paciente.TiempoConsulta);
+            Console.WriteLine($"[Hilo {threadId}] Paciente {paciente.Id}. Llegado el {ordenLlegada}. Estado: Finalizado. Duración Consulta: {duracionConsulta.Seconds} segundos.");
         }
     }
 }
