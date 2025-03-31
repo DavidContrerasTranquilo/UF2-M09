@@ -1,0 +1,15 @@
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\bin\Debug\net8.0\tarea5.exe
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\bin\Debug\net8.0\tarea5.deps.json
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\bin\Debug\net8.0\tarea5.runtimeconfig.json
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\bin\Debug\net8.0\tarea5.dll
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\bin\Debug\net8.0\tarea5.pdb
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.AssemblyInfoInputs.cache
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.AssemblyInfo.cs
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.csproj.CoreCompileInputs.cache
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.sourcelink.json
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.dll
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\refint\tarea5.dll
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.pdb
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\tarea5.genruntimeconfig.cache
+C:\Users\david\Documents\Clases\Lasalle\UF2-M09\ejercicio2\tarea5\obj\Debug\net8.0\ref\tarea5.dll
